@@ -2,6 +2,7 @@ from tkinter.tix import Tree
 import cv2
 import mediapipe as mp
 import mediapipe.python.solutions.pose as mpPose
+import mediapipe.python.solutions.pose as mpPose
 from pythonosc import udp_client
 
 # Create our UDP client which we'll send OSC through
@@ -32,11 +33,12 @@ while True:
     foundNose = False
 
     if results.pose_landmarks:
-        mpDraw.draw_landmarks(img, results.pose_landmarks, mpPose.POSE_CONNECTIONS)
-
+        # mpDraw.draw_landmarks(img, results.pose_landmarks, mpPose.POSE_CONNECTIONS)
 
         for id, lm in enumerate(results.pose_landmarks.landmark):
-            if id == 0:
+            name = mpPose.PoseLandmark(id).name
+
+            if name == "NOSE" or name == "LEFT_INDEX" or name == "RIGHT_INDEX":
                 foundNose = True                
 
                 
@@ -46,7 +48,6 @@ while True:
                 y = lm.y
                 z = lm.z
 
-                name = mpPose.PoseLandmark(id).name
 
                 # Send our values over OSC
                 client.send_message(f"/landmark-{id}-found", 1)
@@ -63,6 +64,8 @@ while True:
 
     if not foundNose:
         client.send_message(f"/landmark-0-found", 0)
+        client.send_message(f"/landmark-19-found", 0)
+        client.send_message(f"/landmark-20-found", 0)
 
 
 
